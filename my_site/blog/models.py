@@ -1,0 +1,51 @@
+from django.contrib.auth import get_user_model
+from django.db import models
+from django.utils import timezone
+
+STRING_MAX_LENGTH = 250
+CHOICES_MAX_LENGTH = 2
+
+
+class PublishedManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            status=Post.Status.PUBLISHED
+        )
+
+
+User = get_user_model()
+
+
+class Post(models.Model):
+
+    class Status(models.TextChoices):
+        DRAFT = 'DF', 'Draft'
+        PUBLISHED = 'PB', 'Published'
+
+    title = models.CharField(max_length=STRING_MAX_LENGTH)
+    slug = models.SlugField(max_length=STRING_MAX_LENGTH)
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='blog_posts'
+    )
+    body = models.TextField()
+    publish = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    status = models.CharField(
+        max_length=CHOICES_MAX_LENGTH,
+        choices=Status.choices,
+        default=Status.DRAFT
+    )
+    objects = models.Manager()
+    published = PublishedManager()
+
+    class Meta:
+        ordering = ['-publish']
+        indexes = [
+            models.Index(fields=['-publish']),
+        ]
+
+    def __str__(self):
+        return self.title
