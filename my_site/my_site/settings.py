@@ -10,7 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,13 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-tzesjc$w7s8eg5l@r)nx!$$ly$iy(q8^@g=!n11c9zq^of00ik'
+SECRET_KEY = os.getenv('SECRET_KEY', ' ')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1, localhost').split(',')
 
 
 # Application definition
@@ -98,6 +101,15 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Email server configuration
+EMAIL_HOST = os.getenv('EMAIL_HOST', ' ')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', ' ')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', ' ')
+EMAIL_PORT = os.getenv('EMAIL_PORT', ' ')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', ' ')
 
 
 # Internationalization
