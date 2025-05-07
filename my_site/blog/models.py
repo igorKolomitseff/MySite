@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 STRING_MAX_LENGTH = 250
@@ -23,7 +24,10 @@ class Post(models.Model):
         PUBLISHED = 'PB', 'Published'
 
     title = models.CharField(max_length=STRING_MAX_LENGTH)
-    slug = models.SlugField(max_length=STRING_MAX_LENGTH)
+    slug = models.SlugField(
+        max_length=STRING_MAX_LENGTH,
+        unique_for_date='publish'
+    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -49,3 +53,14 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse(
+            'blog:post_detail',
+            args=(
+                self.publish.year,
+                self.publish.month,
+                self.publish.day,
+                self.slug
+            )
+        )
