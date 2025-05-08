@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Post
+from .models import Comment, Post
 
 
 @admin.register(Post)
@@ -17,3 +17,10 @@ class PostAdmin(admin.ModelAdmin):
     @admin.action(description='Опубликовать выбранные публикации')
     def make_published(self, request, queryset):
         queryset.update(status=Post.Status.PUBLISHED)
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['name', 'email', 'post', 'created', 'active']
+    list_filter = ['active', 'created', 'updated']
+    search_fields = ['name', 'email', 'body']
