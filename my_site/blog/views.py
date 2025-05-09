@@ -2,8 +2,9 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404,  render
-from django.views.decorators.http import require_POST 
-from django.views.generic import ListView
+from django.views.decorators.http import require_POST
+# from django.views.generic import ListView
+from taggit.models import Tag
 
 from .forms import CommentForm, EmailPostForm
 from .models import Post
@@ -33,8 +34,12 @@ def post_comment(request, post_id):
     )
 
 
-def post_list(request):
+def post_list(request, tag_slug=None):
     posts = Post.published.all()
+    tag = None
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        posts = posts.filter(tags__in=[tag])
     paginator = Paginator(posts, settings.PAGE_SIZE)
     page_number = request.GET.get('page')
     page_object = paginator.get_page(page_number)
@@ -42,16 +47,17 @@ def post_list(request):
         request,
         'blog/post/list.html',
         {
-            'page_object': page_object,
+            'page_obj': page_object,
+            'tag': tag,
         }
     )
 
 
-class PostListView(ListView):
-    queryset = Post.published.all()
-    context_object_name = 'posts'
-    paginate_by = settings.PAGE_SIZE
-    template_name = 'blog/post/list.html'
+# class PostListView(ListView):
+#     queryset = Post.published.all()
+#     context_object_name = 'posts'
+#     paginate_by = settings.PAGE_SIZE
+#     template_name = 'blog/post/list.html'
 
 
 def post_detail(request, year, month, day, post_slug):
